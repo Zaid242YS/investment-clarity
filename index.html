@@ -1,0 +1,950 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Islamic Investment Pathways Navigator | Creed-to-Commerce™</title>
+<meta name="description" content="A Creed-to-Commerce™ tool for Islamic business and investment consultants: assess business status, match halal investment pathways, and project the growth of investing versus saving.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --green:#0f4d3a; --green-2:#1c6b52; --green-3:#e4efe9;
+  --gold:#c9a227; --gold-2:#e6c65a; --gold-3:#f6edcc;
+  --ivory:#f7f5ec; --paper:#fffef9; --ink:#1d2a24; --muted:#5f6c65; --line:#ded8c0;
+  --bad:#a8432f; --ok:#2f7d4f; --warn:#b7791f;
+  --serif:"Amiri","Noto Naskh Arabic",Georgia,"Times New Roman",serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ivory);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55}
+h1,h2,h3,h4{font-family:var(--serif);color:var(--green);margin:0;line-height:1.2}
+h2{font-size:1.9rem} h3{font-size:1.35rem} h4{font-size:1.2rem}
+p{margin:.4rem 0 .8rem}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+
+/* header */
+.hero{background:var(--green);color:#fff;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:var(--gold)}
+.hero .wrap{padding-top:26px;padding-bottom:34px;display:grid;grid-template-columns:1.25fr .75fr;gap:28px;align-items:end}
+.basmala{font-family:var(--serif);font-size:2.1rem;color:var(--gold-2);margin:0 0 6px;direction:rtl;text-align:left}
+.hero h1{color:#fff;font-size:2.6rem;max-width:20ch}
+.hero p.lead{font-size:1.08rem;max-width:56ch;color:#e3efe8;margin:10px 0 0}
+.sparkbox{background:rgba(255,255,255,.07);border:1px solid rgba(230,198,90,.45);border-radius:10px;padding:14px 16px}
+.sparkbox b{font-family:var(--serif);font-size:1.15rem;color:var(--gold-2);display:block;margin-bottom:4px;font-weight:700}
+.sparkbox svg{width:100%;height:auto;display:block}
+.badge{display:inline-block;background:var(--gold);color:#3a2f06;border-radius:20px;padding:2px 12px;font-size:.82rem;font-weight:600;margin-left:8px;vertical-align:middle}
+.badge[hidden]{display:none}
+
+/* toolbar */
+.toolbar{position:sticky;top:0;z-index:20;background:var(--paper);border-bottom:1px solid var(--line);box-shadow:0 2px 10px rgba(15,77,58,.08)}
+.toolbar .wrap{display:flex;flex-wrap:wrap;gap:8px;padding-top:10px;padding-bottom:10px;align-items:center}
+.toolbar .sp{flex:1}
+.btn{border:1.5px solid var(--green);background:var(--paper);color:var(--green);border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer;font-size:.93rem}
+.btn:hover{background:var(--green-3)}
+.btn.primary{background:var(--green);color:#fff}
+.btn.primary:hover{background:var(--green-2)}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#2f2605}
+.btn.gold:hover{background:var(--gold-2)}
+.btn.danger{border-color:var(--bad);color:var(--bad)}
+.btn.danger:hover{background:#f6e3de}
+.btn.danger.armed{background:var(--bad);color:#fff}
+.btn.small{padding:5px 10px;font-size:.85rem}
+
+/* path nav */
+.path{background:var(--paper);border-bottom:1px solid var(--line)}
+.path .wrap{padding-top:16px;padding-bottom:14px}
+.steps{display:grid;grid-template-columns:repeat(6,1fr);gap:0;margin:0;padding:0;list-style:none;position:relative}
+.steps::before{content:"";position:absolute;top:19px;left:8%;right:8%;height:3px;background:var(--line)}
+.steps li{position:relative;text-align:center}
+.steps button{background:none;border:0;cursor:pointer;padding:0 4px;width:100%}
+.steps .dot{width:40px;height:40px;border-radius:50%;background:var(--paper);border:3px solid var(--line);margin:0 auto 6px;display:grid;place-items:center;font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--muted);position:relative;z-index:1}
+.steps .nm{font-family:var(--serif);font-size:1.1rem;color:var(--muted);display:block;line-height:1.1}
+.steps .sb{font-size:.76rem;color:var(--muted);display:block}
+.steps li.done .dot{border-color:var(--green-2);color:var(--green-2)}
+.steps li.on .dot{background:var(--green);border-color:var(--gold);color:#fff}
+.steps li.on .nm{color:var(--green);font-weight:700}
+
+/* panels */
+main{padding:28px 0 60px}
+.panel{display:none}
+.panel.on{display:block}
+.phead{margin-bottom:18px;max-width:70ch}
+.phead p{color:var(--muted);font-size:1.02rem}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:20px;box-shadow:0 1px 2px rgba(15,77,58,.06)}
+.card.green{background:var(--green);color:#fff;border-color:var(--green)}
+.card.green h3,.card.green h4{color:var(--gold-2)}
+.card h3{margin-bottom:6px}
+.note{font-size:.88rem;color:var(--muted)}
+.foundation{border-left:5px solid var(--gold);background:var(--gold-3);border-radius:0 10px 10px 0;padding:14px 18px;margin-bottom:18px}
+.foundation p{margin:.2rem 0}
+
+/* stats */
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.stat span{display:block;font-size:.9rem;color:var(--muted)}
+.stat b{display:block;font-family:var(--serif);font-size:2rem;line-height:1.1;color:var(--green);margin:2px 0}
+.stat small{color:var(--muted);font-size:.82rem}
+.stat.good{border-color:var(--green-2);background:var(--green-3)}
+.stat.good b{color:var(--green)}
+.stat.bad b{color:var(--bad)}
+.stat.gold{background:var(--gold-3);border-color:var(--gold)}
+
+/* forms */
+.fgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px 14px}
+.field label{display:block;font-size:.9rem;font-weight:600;margin-bottom:3px;color:var(--ink)}
+.field input,.field select,.field textarea{width:100%;border:1.5px solid var(--line);border-radius:8px;padding:9px 10px;background:#fff}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--green-2)}
+.field .hint{font-size:.78rem;color:var(--muted);margin-top:2px}
+.field.full{grid-column:1/-1}
+.fsec{font-family:var(--serif);font-size:1.25rem;color:var(--green);margin:16px 0 8px;grid-column:1/-1;border-bottom:1px solid var(--line);padding-bottom:4px}
+.fsec:first-child{margin-top:0}
+.checks{display:grid;gap:8px;margin:10px 0}
+.checks label{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;background:#fff;cursor:pointer}
+.checks input{margin-top:4px;width:18px;height:18px;accent-color:var(--green);flex:none}
+.checks label:has(input:checked){border-color:var(--green-2);background:var(--green-3)}
+
+/* meters */
+.bar{height:10px;background:#ebe6d0;border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--green-2);border-radius:6px;transition:width .4s}
+.comp{margin:10px 0}
+.comp .row{display:flex;justify-content:space-between;font-size:.92rem;gap:10px}
+.comp .row b{font-weight:600}
+.comp .why{font-size:.8rem;color:var(--muted);margin-top:2px}
+.ring{width:150px;height:150px;flex:none}
+.ring .rbg{fill:none;stroke:#ebe6d0;stroke-width:13}
+.ring .rfg{fill:none;stroke-width:13;stroke-linecap:round;transition:stroke-dashoffset .6s}
+.ring .rv{font-family:var(--serif);font-size:34px;font-weight:700;fill:var(--green)}
+.ring .rs{font-size:11px;fill:var(--muted)}
+.status{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.tier{display:inline-block;color:#fff;border-radius:20px;padding:3px 14px;font-weight:700;font-size:.95rem}
+.empty{border:2px dashed var(--line);border-radius:12px;padding:26px;text-align:center;color:var(--muted);background:var(--paper)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{background:var(--ivory);border:1px solid var(--line);border-radius:20px;padding:3px 12px;font-size:.85rem}
+
+/* allocation */
+.alloc{display:flex;height:22px;border-radius:11px;overflow:hidden;background:#ebe6d0;margin:8px 0}
+.alloc i{display:block;height:100%}
+.alloclegend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.88rem}
+.alloclegend span::before{content:"";display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--c);margin-right:6px;vertical-align:-1px}
+
+/* strategy cards */
+.sgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:18px}
+.scard{background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:8px;border-top:6px solid var(--c)}
+.scard.off{opacity:.62}
+.scard .shead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.scard .ar{font-family:var(--serif);font-size:1.25rem;color:var(--gold);margin-left:8px}
+.scard .kind{font-size:.82rem;color:var(--muted);display:block}
+.tog{display:flex;gap:6px;align-items:center;font-size:.88rem;font-weight:600;white-space:nowrap;cursor:pointer}
+.tog input{width:18px;height:18px;accent-color:var(--green)}
+.meters{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;font-size:.85rem}
+.meters .lab{display:flex;justify-content:space-between;margin-bottom:2px;color:var(--muted)}
+.conf{display:inline-block;border-radius:14px;padding:1px 10px;font-weight:700;font-size:.82rem;color:#fff}
+.retline{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:.9rem;background:var(--ivory);border-radius:8px;padding:8px 10px}
+.retline input{width:68px;border:1.5px solid var(--line);border-radius:6px;padding:4px 6px;background:#fff}
+.dots{letter-spacing:2px;color:var(--green-2)}
+.scard p{margin:0;font-size:.92rem}
+.scard p b{color:var(--green)}
+.scard .al{margin-top:auto;background:var(--green-3);border-radius:8px;padding:8px 12px;font-weight:600;color:var(--green)}
+
+/* chart */
+.chartbox svg{width:100%;height:auto;display:block}
+.chartbox .gl{stroke:#e5dfc6;stroke-width:1}
+.chartbox text{font-family:var(--sans);font-size:11.5px;fill:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.88rem;margin-top:8px}
+.legend span::before{content:"";display:inline-block;width:20px;height:0;border-top:3px solid var(--c);margin-right:7px;vertical-align:3px}
+.legend span.dash::before{border-top-style:dashed}
+table.t{width:100%;border-collapse:collapse;font-size:.92rem}
+table.t th{background:var(--green);color:#fff;text-align:left;padding:8px 10px;font-weight:600}
+table.t td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+table.t tr:nth-child(even) td{background:#faf7ea}
+.tw{overflow-x:auto}
+
+/* plan */
+.phase{display:grid;grid-template-columns:200px 1fr;gap:18px;padding:18px 0;border-top:1px solid var(--line)}
+.phase:first-child{border-top:0;padding-top:0}
+.phase h4{margin-bottom:2px}
+.phase .when{color:var(--gold);font-family:var(--serif);font-size:1.15rem;font-weight:700}
+.phase ul{margin:0;padding-left:20px}
+.phase li{margin-bottom:6px}
+
+.navrow{display:flex;justify-content:space-between;margin-top:24px;gap:10px}
+.disc{font-size:.82rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;margin-top:26px}
+footer{background:var(--green);color:#dcebe3;text-align:center;padding:24px 20px;font-size:.9rem}
+footer b{font-family:var(--serif);font-size:1.15rem;color:var(--gold-2);font-weight:700}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,30px);background:var(--green);color:#fff;border-radius:10px;padding:10px 18px;opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:90vw;border:1px solid var(--gold)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* clients dialog */
+.ov{position:fixed;inset:0;background:rgba(15,40,30,.55);display:none;place-items:center;z-index:50;padding:16px}
+.ov.on{display:grid}
+.dlg{background:var(--paper);border-radius:14px;max-width:560px;width:100%;max-height:85vh;overflow:auto;padding:22px;border-top:6px solid var(--gold)}
+.cl{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.cl b{display:block}
+.cl small{color:var(--muted)}
+
+@media (max-width:900px){
+  .hero .wrap{grid-template-columns:1fr}
+  .hero h1{font-size:2.1rem}
+  .g3,.g4{grid-template-columns:repeat(2,1fr)}
+  .sgrid{grid-template-columns:1fr}
+  .phase{grid-template-columns:1fr;gap:6px}
+}
+@media (max-width:620px){
+  .g2,.g3,.g4,.fgrid{grid-template-columns:1fr}
+  .steps .sb{display:none}
+  .steps .nm{font-size:.9rem}
+  .steps .dot{width:34px;height:34px}
+  .steps::before{top:16px}
+  .meters{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+@media print{
+  @page{margin:12mm}
+  body{background:#fff;font-size:11pt}
+  .toolbar,.path,.navrow,.noprint,.toast,.ov,.tog{display:none!important}
+  .panel{display:block!important;break-before:page}
+  .panel#p1{break-before:auto}
+  .card,.stat,.scard{break-inside:avoid;box-shadow:none}
+  .hero{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .hero .wrap{padding-top:12px;padding-bottom:16px}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  footer{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <p class="basmala" lang="ar" dir="rtl">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</p>
+      <h1>Islamic Investment Pathways Navigator<span class="badge" id="sampleBadge" hidden>Sample data</span></h1>
+      <p class="lead">From creed to commerce: see where a business stands today, match halal investment pathways to the investor’s needs, and show clients what their wealth can become when it works instead of waits.</p>
+    </div>
+    <div class="sparkbox" aria-hidden="true">
+      <b>Saving holds. Investing builds.</b>
+      <svg viewBox="0 0 300 110" role="img" aria-label="A flat savings line beside a rising investment curve">
+        <path d="M10 92 L290 86" stroke="#d9c27a" stroke-width="3" stroke-dasharray="6 5" fill="none"/>
+        <path d="M10 92 C80 90 120 82 160 66 S250 22 290 8" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <circle cx="290" cy="8" r="5" fill="#e6c65a"/>
+        <text x="14" y="106" font-size="11" fill="#cfe3d8">Today</text>
+        <text x="236" y="106" font-size="11" fill="#cfe3d8">Your horizon</text>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar noprint" role="toolbar" aria-label="App actions">
+  <div class="wrap">
+    <button class="btn" id="btnClients" type="button">Clients</button>
+    <button class="btn" id="btnSample" type="button">Load Sample Data</button>
+    <button class="btn danger" id="btnClear" type="button">Clear Sample Data</button>
+    <span class="sp"></span>
+    <button class="btn gold" id="btnSummary" type="button">Executive Summary PDF</button>
+    <button class="btn primary" id="btnPDF" type="button">Generate PDF Report</button>
+    <button class="btn" id="btnPrint" type="button">Print</button>
+  </div>
+</div>
+
+<nav class="path noprint" aria-label="Creed-to-Commerce path">
+  <div class="wrap">
+    <ol class="steps" id="steps">
+      <li data-i="1"><button type="button"><span class="dot">١</span><span class="nm">Creed</span><span class="sb">Intention and values</span></button></li>
+      <li data-i="2"><button type="button"><span class="dot">٢</span><span class="nm">Clarity</span><span class="sb">Business status</span></button></li>
+      <li data-i="3"><button type="button"><span class="dot">٣</span><span class="nm">Capital</span><span class="sb">Halal pathways</span></button></li>
+      <li data-i="4"><button type="button"><span class="dot">٤</span><span class="nm">Compound</span><span class="sb">Saving vs investing</span></button></li>
+      <li data-i="5"><button type="button"><span class="dot">٥</span><span class="nm">Commerce</span><span class="sb">Outcomes and confidence</span></button></li>
+      <li data-i="6"><button type="button"><span class="dot">٦</span><span class="nm">Continuity</span><span class="sb">Sustainability plan</span></button></li>
+    </ol>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- 1 CREED -->
+<section class="panel on" id="p1" aria-labelledby="h1c">
+  <div class="phead">
+    <h2 id="h1c">Creed: wealth is a trust, and a trust is put to work</h2>
+    <p>Every strategy in this tool starts with intention and compliance. Before numbers, confirm the principles that make growth blessed as well as profitable.</p>
+  </div>
+  <div class="foundation">
+    <p><b>Foundations.</b> Allah has permitted trade and forbidden riba (Al-Baqarah 2:275), and calls believers to spread out in the land and seek His bounty (Al-Jumu‘ah 62:10). Productive, partnership-based earning is the Islamic road to growth.</p>
+    <p class="note">Share these principles with your client, then confirm every structure with a qualified Shariah advisor.</p>
+  </div>
+
+  <h3 style="margin-bottom:8px">What waiting costs, and what working can earn</h3>
+  <div class="grid g3" id="teaser" style="margin-bottom:22px"></div>
+
+  <div class="grid g3" style="margin-bottom:22px">
+    <div class="card"><h4>Savings protect. Investment builds.</h4><p>A savings account is the right home for an emergency reserve. It is not built to grow wealth. Capital placed in trade, partnership, and real assets earns a share of real economic activity.</p></div>
+    <div class="card"><h4>Inflation quietly shrinks idle cash</h4><p id="inflText">Enter the investor’s funds in Clarity to see what idle cash loses in buying power.</p></div>
+    <div class="card"><h4>Partnership shares risk and reward fairly</h4><p>Musharakah and Mudarabah tie profit to real results and to risk actually borne, the principle that entitlement to gain goes with responsibility for loss.</p></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h3>Creed alignment checklist</h3>
+      <p class="note">Tick each principle the business can honestly confirm today.</p>
+      <div class="checks" id="checks"></div>
+      <div class="comp"><div class="row"><b>Creed alignment</b><span id="creedPct">0%</span></div><div class="bar"><i id="creedBar" style="width:0"></i></div></div>
+    </div>
+    <div class="card">
+      <h3>Statement of intention (niyyah)</h3>
+      <p class="note">Write why this wealth will be grown, in the client’s own words. It prints on the report.</p>
+      <div class="field"><textarea id="niyyah" data-k="niyyah" rows="7" placeholder="Example: To grow halal wealth that secures my family, creates jobs, and funds sadaqah and waqf."></textarea></div>
+    </div>
+  </div>
+  <div class="navrow"><span></span><button class="btn primary" type="button" data-go="2">Continue to Clarity</button></div>
+</section>
+
+<!-- 2 CLARITY -->
+<section class="panel" id="p2" aria-labelledby="h2c">
+  <div class="phead">
+    <h2 id="h2c">Clarity: where the business stands today</h2>
+    <p>Enter the figures. The Business Health Score updates as you type and sets how boldly the pathways in the next step can be recommended.</p>
+  </div>
+  <div class="grid g2" style="align-items:start">
+    <div class="card">
+      <div class="fgrid">
+        <div class="fsec">Client and business</div>
+        <div class="field"><label for="client">Client / investor name</label><input id="client" data-k="client" type="text" autocomplete="off"></div>
+        <div class="field"><label for="business">Business name</label><input id="business" data-k="business" type="text" autocomplete="off"></div>
+        <div class="field"><label for="sector">Sector</label>
+          <select id="sector" data-k="sector">
+            <option value="Retail and trading">Retail and trading</option>
+            <option value="Food and hospitality">Food and hospitality</option>
+            <option value="Services and consulting">Services and consulting</option>
+            <option value="Manufacturing">Manufacturing</option>
+            <option value="Agriculture and aquaculture">Agriculture and aquaculture</option>
+            <option value="Technology and digital">Technology and digital</option>
+            <option value="Real estate and construction">Real estate and construction</option>
+            <option value="Education and healthcare">Education and healthcare</option>
+            <option value="Other">Other</option>
+          </select></div>
+        <div class="field"><label for="currency">Currency</label>
+          <select id="currency" data-k="currency">
+            <option>USD</option><option>MYR</option><option>SAR</option><option>AED</option><option>EGP</option><option>GBP</option><option>EUR</option>
+          </select></div>
+        <div class="field"><label for="years">Years in operation</label><input id="years" data-k="years" type="number" min="0" step="0.5" inputmode="decimal"></div>
+
+        <div class="fsec">Monthly business figures</div>
+        <div class="field"><label for="revenue">Revenue</label><input id="revenue" data-k="revenue" type="number" min="0" inputmode="decimal"></div>
+        <div class="field"><label for="expenses">Operating expenses</label><input id="expenses" data-k="expenses" type="number" min="0" inputmode="decimal"><div class="hint">Everything except loan payments</div></div>
+        <div class="field"><label for="debtPay">Debt service</label><input id="debtPay" data-k="debtPay" type="number" min="0" inputmode="decimal"><div class="hint">All monthly loan payments</div></div>
+        <div class="field"><label for="cash">Cash reserves</label><input id="cash" data-k="cash" type="number" min="0" inputmode="decimal"><div class="hint">Business cash on hand</div></div>
+
+        <div class="fsec">Investor needs</div>
+        <div class="field"><label for="investable">Idle funds ready to invest</label><input id="investable" data-k="investable" type="number" min="0" inputmode="decimal"></div>
+        <div class="field"><label for="contribution">Monthly amount to add</label><input id="contribution" data-k="contribution" type="number" min="0" inputmode="decimal"></div>
+        <div class="field"><label for="horizon">Time horizon (years)</label><input id="horizon" data-k="horizon" type="number" min="1" max="30" step="1" inputmode="numeric"></div>
+        <div class="field"><label for="risk">Comfort with ups and downs</label>
+          <select id="risk" data-k="risk">
+            <option value="1">1: Very cautious</option><option value="2">2: Cautious</option><option value="3">3: Balanced</option><option value="4">4: Growth-minded</option><option value="5">5: Growth-seeker</option>
+          </select></div>
+        <div class="field"><label for="goal">Main goal</label>
+          <select id="goal" data-k="goal">
+            <option value="growth">Grow capital</option><option value="income">Steady profit income</option><option value="preserve">Preserve wealth</option><option value="expand">Expand my own business</option>
+          </select></div>
+        <div class="field"><label for="liquidity">Need for quick access to cash</label>
+          <select id="liquidity" data-k="liquidity">
+            <option value="low">Low, can lock funds up</option><option value="medium">Medium</option><option value="high">High, may need funds soon</option>
+          </select></div>
+
+        <div class="fsec">Planning assumptions</div>
+        <div class="field"><label for="inflation">Inflation (% a year)</label><input id="inflation" data-k="inflation" type="number" min="0" max="30" step="0.1" inputmode="decimal"></div>
+        <div class="field"><label for="savingsRate">Savings profit rate (% a year)</label><input id="savingsRate" data-k="savingsRate" type="number" min="0" max="30" step="0.1" inputmode="decimal"></div>
+
+        <div class="fsec">Prepared by</div>
+        <div class="field"><label for="consultant">Consultant name</label><input id="consultant" data-k="consultant" type="text" autocomplete="off"></div>
+        <div class="field"><label for="firm">Firm</label><input id="firm" data-k="firm" type="text" autocomplete="off"></div>
+      </div>
+    </div>
+    <div class="card" id="statusCard" aria-live="polite"></div>
+  </div>
+  <div class="navrow"><button class="btn" type="button" data-go="1">Back</button><button class="btn primary" type="button" data-go="3">Continue to Capital</button></div>
+</section>
+
+<!-- 3 CAPITAL -->
+<section class="panel" id="p3" aria-labelledby="h3c">
+  <div class="phead">
+    <h2 id="h3c">Capital: halal pathways matched to the investor’s needs</h2>
+    <p>Eight pathways are scored against the goal, comfort with risk, time horizon, need for cash, and the business’s status. The strongest four are selected and weighted. Add or remove any pathway and adjust the return assumptions to suit your own research.</p>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
+      <h3>Suggested allocation of <span id="allocTotal"></span></h3>
+      <button class="btn small noprint" type="button" id="btnAuto">Reset to recommended</button>
+    </div>
+    <div class="alloc" id="allocBar" role="img" aria-label="Allocation across selected pathways"></div>
+    <div class="alloclegend" id="allocLegend"></div>
+  </div>
+  <div class="sgrid" id="stratGrid"></div>
+  <div class="navrow"><button class="btn" type="button" data-go="2">Back</button><button class="btn primary" type="button" data-go="4">See the growth</button></div>
+</section>
+
+<!-- 4 COMPOUND -->
+<section class="panel" id="p4" aria-labelledby="h4c">
+  <div class="phead">
+    <h2 id="h4c">Compound: the same money, saved or invested</h2>
+    <p>Projected over the investor’s horizon with monthly compounding. The shaded band spans the conservative to optimistic outcomes of the selected portfolio.</p>
+  </div>
+  <div class="grid g4" id="compStats" style="margin-bottom:18px"></div>
+  <div class="card chartbox">
+    <h3>Projected value over time</h3>
+    <div id="chartBox"></div>
+    <div class="legend" id="chartLegend"></div>
+  </div>
+  <div class="card" style="margin-top:18px">
+    <h3>Year-by-year milestones</h3>
+    <div class="tw" id="compTable"></div>
+    <p class="note" style="margin-top:10px">Returns are planning assumptions, not promises. Investing carries risk, including loss of capital. Zakat remains due on zakatable wealth whether it is saved or invested.</p>
+  </div>
+  <div class="navrow"><button class="btn" type="button" data-go="3">Back</button><button class="btn primary" type="button" data-go="5">See the outcomes</button></div>
+</section>
+
+<!-- 5 COMMERCE -->
+<section class="panel" id="p5" aria-labelledby="h5c">
+  <div class="phead">
+    <h2 id="h5c">Commerce: the outcomes this plan is built to deliver</h2>
+    <p>Confidence comes from a clear plan, honest ranges, and safeguards at every step. Here is what the plan aims for, and how sure we are of it.</p>
+  </div>
+  <div class="grid g2" style="align-items:stretch;margin-bottom:18px">
+    <div class="card green" style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+      <div id="confRing"></div>
+      <div style="flex:1;min-width:220px"><h3>Plan confidence</h3><div id="confText"></div></div>
+    </div>
+    <div class="card"><h3>The headline</h3><div id="headlines"></div></div>
+  </div>
+  <div class="grid g3" id="scenCards" style="margin-bottom:18px"></div>
+  <div class="card">
+    <h3>Milestones to reach</h3>
+    <div class="tw" id="outTable"></div>
+  </div>
+  <div class="navrow"><button class="btn" type="button" data-go="4">Back</button><button class="btn primary" type="button" data-go="6">Build the sustainability plan</button></div>
+</section>
+
+<!-- 6 CONTINUITY -->
+<section class="panel" id="p6" aria-labelledby="h6c">
+  <div class="phead">
+    <h2 id="h6c">Continuity: making the results last</h2>
+    <p>A sequence of steps drawn from the client’s own numbers. Each phase protects what the previous one built.</p>
+  </div>
+  <div class="card" id="planBox"></div>
+  <div class="grid g2" style="margin-top:18px">
+    <div class="card"><h3>Consultant notes</h3><p class="note">Add observations, agreed actions, or follow-up dates. Notes print on the full report.</p>
+      <div class="field"><textarea id="notes" data-k="notes" rows="6" placeholder="Meeting notes, agreed next steps, review date..."></textarea></div></div>
+    <div class="card"><h3>Yearly sustainability review</h3>
+      <ul style="margin:0;padding-left:20px"><li>Recalculate and pay zakat on all zakatable wealth.</li><li>Update the Business Health Score with fresh figures.</li><li>Rebalance pathways that drifted more than ten points from target.</li><li>Review every partnership contract and the partner’s reports.</li><li>Renew the written niyyah and set the next year’s targets.</li></ul></div>
+  </div>
+  <div class="navrow"><button class="btn" type="button" data-go="5">Back</button><button class="btn primary" type="button" id="btnPDF2">Generate PDF Report</button></div>
+  <p class="disc">This navigator is an educational planning tool. It is not licensed investment, tax, or legal advice and it does not issue Shariah rulings. Return ranges are indicative planning assumptions and are not guaranteed. Capital is at risk. Confirm every structure with a qualified Shariah scholar and a licensed adviser in the relevant jurisdiction.</p>
+</section>
+</main>
+
+<footer>
+  <b>Creed-to-Commerce™</b><br>
+  The Balanced Middle Path Academy, LLC
+</footer>
+
+<div class="ov" id="ov" role="dialog" aria-modal="true" aria-labelledby="ovT">
+  <div class="dlg">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 id="ovT">Client roster</h3><button class="btn small" type="button" id="ovClose">Close</button></div>
+    <p class="note">Save the current assessment to this browser, then reload it any time.</p>
+    <button class="btn primary" type="button" id="ovSave">Save current client</button>
+    <div id="clList" style="margin-top:12px"></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
+const num=x=>{const v=parseFloat(x);return isFinite(v)?v:0};
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const KEY='bmpa_iipn_state_v1', RKEY='bmpa_iipn_roster_v1';
+
+const CHECKS=[
+ 'The business activity and its supply chain are halal: no alcohol, gambling, riba-based services, or other prohibited lines.',
+ 'Contracts are written and clear on rights, duties, and profit-and-loss sharing, removing excessive uncertainty (gharar).',
+ 'Zakat on business and personal wealth is calculated and paid every year.',
+ 'Interest-based (riba) borrowing is avoided, or a dated plan exists to exit it.',
+ 'Books are accurate, current, and open to partners: the trust (amanah) standard.',
+ 'A written intention (niyyah) links wealth growth to family, community, and the ummah.'
+];
+
+const SAMPLE={
+ consultant:'',firm:'',client:'Ahmad Rahman',business:'Barakah Trading Sdn Bhd',sector:'Retail and trading',currency:'USD',
+ years:4,revenue:42000,expenses:31500,debtPay:3200,cash:90000,investable:60000,contribution:1500,horizon:10,
+ risk:3,goal:'growth',liquidity:'medium',inflation:3,savingsRate:1.5,
+ checks:[true,true,true,false,true,true],
+ niyyah:'To grow halal wealth that secures my family, creates jobs for my community, and funds sadaqah and waqf.',
+ notes:'',chosen:null,over:{},isSample:true
+};
+const clone=o=>JSON.parse(JSON.stringify(o));
+
+const STRATS=[
+ {id:'reinvest',name:'Productive Reinvestment',ar:'تِجَارَة',kind:'Tijarah in your own operations',lo:8,hi:20,risk:3,liq:2,growth:true,income:false,c:'#0f4d3a',
+  what:'Direct capital into proven parts of the business you control: inventory turns, equipment, marketing, and capacity.',
+  outcome:'Higher monthly revenue and stronger margins that compound inside a business you understand.',
+  safe:'Release funds in stages, require a payback test before each tranche, and never touch the three-month reserve.'},
+ {id:'musharakah',name:'Musharakah Partnership',ar:'مُشَارَكَة',kind:'Joint venture, shared profit and loss',lo:8,hi:18,risk:4,liq:2,growth:true,income:false,c:'#c9a227',
+  what:'Co-invest with a vetted operator. Profit is shared by agreed ratio and losses follow capital contributed.',
+  outcome:'Participation in the upside of real ventures with aligned incentives and transparent reporting.',
+  safe:'Written contract, audited or reviewed accounts, capped exposure per venture, and a defined exit clause.'},
+ {id:'mudarabah',name:'Mudarabah Managed Fund',ar:'مُضَارَبَة',kind:'Capital from you, skill from a manager',lo:6,hi:14,risk:3,liq:3,growth:true,income:true,c:'#2f7d4f',
+  what:'Entrust capital to a Shariah-governed manager who earns a share of profit and bears no guarantee of return.',
+  outcome:'Professionally managed, diversified exposure without running the activity yourself.',
+  safe:'Choose managers with a Shariah board, published track record, and clear fee and profit-share terms.'},
+ {id:'equities',name:'Shariah-Screened Equities',ar:'أَسْهُم',kind:'Halal index funds and ETFs',lo:5,hi:12,risk:3,liq:5,growth:true,income:false,c:'#4e9f7d',
+  what:'Own a diversified basket of listed companies that pass Shariah business and financial screens.',
+  outcome:'Long-run growth with daily liquidity and low cost, with purification of any impermissible income.',
+  safe:'Prefer broad index funds, invest in tranches, and hold through market cycles of five years or more.'},
+ {id:'sukuk',name:'Sukuk Income',ar:'صُكُوك',kind:'Asset-backed certificates',lo:3,hi:7,risk:2,liq:4,growth:false,income:true,c:'#8a6d1b',
+  what:'Hold certificates that give a share in the profits of an underlying real asset, not a loan with interest.',
+  outcome:'Steadier income and capital stability to balance the growth pathways.',
+  safe:'Check the Shariah structure and issuer strength, and spread across issuers and maturities.'},
+ {id:'ijarah',name:'Ijarah Property and Equipment',ar:'إِجَارَة',kind:'Income from leased assets',lo:5,hi:10,risk:3,liq:1,growth:false,income:true,c:'#3f7f93',
+  what:'Own property or equipment that is leased to a business or tenant for rent, with ownership risk borne by you.',
+  outcome:'Recurring rental income and long-term asset value that follows real-economy demand.',
+  safe:'Verify title and insurance, vet the lessee, budget for maintenance, and keep a vacancy reserve.'},
+ {id:'murabaha',name:'Murabaha Trade Finance',ar:'مُرَابَحَة',kind:'Cost-plus sale of goods',lo:5,hi:9,risk:2,liq:2,growth:false,income:true,c:'#6b5b3e',
+  what:'Finance the purchase of goods by buying them and selling to the buyer at a disclosed profit margin on deferred terms.',
+  outcome:'Predictable short-term profit tied to real goods changing hands.',
+  safe:'Real goods must be owned before resale, margins disclosed, and buyers credit-checked with collateral where possible.'},
+ {id:'gold',name:'Physical Gold Reserve',ar:'ذَهَب',kind:'Store of value',lo:2,hi:6,risk:2,liq:4,growth:false,income:false,c:'#a8432f',
+  what:'Hold physical or fully allocated gold as a hedge that has kept purchasing power across centuries.',
+  outcome:'A reserve that protects buying power when currencies weaken, held beside the growth pathways.',
+  safe:'Buy from reputable dealers with immediate possession, store securely, and size it as protection, not the main engine.'}
+];
+
+const TIERS=[
+ {n:'Foundation',c:'#a8432f',t:'Strengthen the base first. Build reserves, lift margin, and clear costly debt while starting with small, liquid, low-risk steps.'},
+ {n:'Stabilizing',c:'#b7791f',t:'The business is steadying. Protect liquidity, then begin measured, staged investment alongside operations.'},
+ {n:'Growth-Ready',c:'#2f7d4f',t:'Fundamentals can carry growth capital. Deploy in tranches across diversified halal pathways.'},
+ {n:'Expansion-Ready',c:'#0f4d3a',t:'Strong, resilient, and aligned. Ready to scale through partnerships and assets while keeping discipline.'}
+];
+const TIER_MIN=[0,40,60,78];
+
+/* ---------- state ---------- */
+function loadState(){try{const s=localStorage.getItem(KEY);return s?JSON.parse(s):null}catch(e){return null}}
+function saveState(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+let state=loadState()||clone(SAMPLE);
+if(!Array.isArray(state.checks)||state.checks.length!==CHECKS.length)state.checks=CHECKS.map(()=>false);
+state.over=state.over||{};
+let LAST=null;
+
+function blankState(){
+ return {consultant:state.consultant||'',firm:state.firm||'',client:'',business:'',sector:'Retail and trading',currency:state.currency||'USD',
+  years:'',revenue:'',expenses:'',debtPay:'',cash:'',investable:'',contribution:'',horizon:10,risk:3,goal:'growth',liquidity:'medium',
+  inflation:state.inflation!=null?state.inflation:3,savingsRate:state.savingsRate!=null?state.savingsRate:1.5,
+  checks:CHECKS.map(()=>false),niyyah:'',notes:'',chosen:null,over:state.over||{},isSample:false};
+}
+
+/* ---------- formatting ---------- */
+const fm=v=>{try{return new Intl.NumberFormat('en-US',{style:'currency',currency:state.currency,maximumFractionDigits:0}).format(v)}catch(e){return Math.round(v).toLocaleString('en-US')}};
+const fmPDF=v=>state.currency+' '+Math.round(v).toLocaleString('en-US');
+const compact=v=>new Intl.NumberFormat('en-US',{notation:'compact',maximumFractionDigits:1}).format(v);
+const pct=v=>(Math.round(v*1000)/10)+'%';
+const dots=n=>'●'.repeat(n)+'○'.repeat(5-n);
+
+/* ---------- model ---------- */
+function metrics(){
+ const s=state,rev=num(s.revenue),exp=num(s.expenses),debt=num(s.debtPay),cash=num(s.cash),yrs=num(s.years);
+ const burn=exp+debt,netMargin=rev>0?(rev-exp-debt)/rev:0;
+ const runway=burn>0?cash/burn:0,debtLoad=rev>0?debt/rev:0;
+ const checked=s.checks.filter(Boolean).length,creed=checked/CHECKS.length;
+ const hasData=rev>0||num(s.investable)>0;
+ const comp=[
+  {k:'Profitability',w:30,v:clamp(netMargin/0.2,0,1)*100,note:'Net margin after debt service is '+pct(netMargin)+' (target 20% or more)'},
+  {k:'Liquidity',w:25,v:clamp(runway/6,0,1)*100,note:'Cash covers '+runway.toFixed(1)+' months of costs (target 6 or more)'},
+  {k:'Debt discipline',w:20,v:clamp(1-debtLoad/0.3,0,1)*100,note:'Debt service takes '+pct(debtLoad)+' of revenue (target under 10%)'},
+  {k:'Track record',w:10,v:clamp(yrs/5,0,1)*100,note:yrs+' years in operation (5 or more is full strength)'},
+  {k:'Creed alignment',w:15,v:creed*100,note:checked+' of '+CHECKS.length+' principles confirmed'}
+ ];
+ const score=hasData?Math.round(comp.reduce((a,c)=>a+c.v*c.w/100,0)):0;
+ const tier=score>=78?3:score>=60?2:score>=40?1:0;
+ const req=[s.client,s.business,rev,exp,cash,num(s.investable),yrs,num(s.horizon)];
+ const completeness=Math.round(req.filter(x=>x&&String(x).length).length/req.length*100);
+ return {rev,exp,debt,cash,yrs,burn,netMargin,runway,debtLoad,checked,creed,hasData,comp,score,tier,completeness};
+}
+function fitScore(st,m){
+ const s=state,risk=num(s.risk)||3,h=num(s.horizon)||10;
+ let f=50+(2-Math.abs(st.risk-risk))*8;
+ if(s.goal==='growth'&&st.growth)f+=10;
+ if(s.goal==='income'&&st.income)f+=12;
+ if(s.goal==='preserve'){if(st.risk<=2)f+=12;if(st.liq>=4)f+=3}
+ if(s.goal==='expand'&&(st.id==='reinvest'||st.id==='musharakah'))f+=14;
+ if(s.liquidity==='high')f+=st.liq>=4?10:st.liq<=2?-10:0;
+ if(s.liquidity==='low'&&st.liq<=2)f+=4;
+ if(h<=2&&st.liq<=2)f-=15;
+ if(h>=7&&st.liq<=2)f+=5;
+ if(h>=7&&st.id==='equities')f+=6;
+ if(m.hasData){
+  if(m.tier<=1&&st.risk>=4)f-=10;
+  if(m.runway<3)f+=st.liq>=4?8:st.liq<=2?-8:0;
+ }
+ return clamp(Math.round(f),20,96);
+}
+function proj(init,c,r,H){const out=[init];let b=init;const mr=r/100/12;for(let y=1;y<=H;y++){for(let k=0;k<12;k++)b=b*(1+mr)+c;out.push(b)}return out}
+function model(){
+ const m=metrics();
+ const ranked=STRATS.map(st=>{const ov=state.over[st.id];const lo=ov?ov[0]:st.lo,hi=ov?ov[1]:st.hi;
+  const fit=fitScore(st,m);
+  const conf=clamp(Math.round(0.6*fit+0.2*m.completeness+0.2*m.creed*100),20,98);
+  return Object.assign({},st,{lo,hi,mid:(lo+hi)/2,fit,conf});
+ }).sort((a,b)=>b.fit-a.fit);
+ const inc=state.chosen?ranked.filter(r=>state.chosen.indexOf(r.id)>=0):ranked.slice(0,4);
+ const w=inc.map(r=>Math.max(r.fit-35,5)),tw=w.reduce((a,b)=>a+b,0)||1;
+ const p=w.map(x=>Math.round(x/tw*100));
+ if(p.length){p[0]+=100-p.reduce((a,b)=>a+b,0)}
+ inc.forEach((r,i)=>r.alloc=p[i]);
+ const rate=k=>inc.reduce((a,r)=>a+r.alloc*r[k],0)/100;
+ const rates={lo:rate('lo'),hi:rate('hi'),mid:rate('mid')};
+ const H=clamp(Math.round(num(state.horizon))||10,1,30);
+ const init=num(state.investable),c=num(state.contribution);
+ const sr=num(state.savingsRate),inf=num(state.inflation);
+ const S={contrib:[],save:proj(init,c,sr,H),cons:proj(init,c,rates.lo,H),exp:proj(init,c,rates.mid,H),opt:proj(init,c,rates.hi,H)};
+ for(let y=0;y<=H;y++)S.contrib.push(init+c*12*y);
+ const real=v=>v/Math.pow(1+inf/100,H);
+ const end={contrib:S.contrib[H],save:S.save[H],saveReal:real(S.save[H]),cons:S.cons[H],exp:S.exp[H],opt:S.opt[H]};
+ const idleReal=init*Math.pow((1+sr/100)/(1+inf/100),H);
+ const conf=inc.length?Math.round(inc.reduce((a,r)=>a+r.conf*r.alloc,0)/100):0;
+ return {m,ranked,inc,rates,H,init,c,sr,inf,series:S,end,idleReal,conf};
+}
+
+/* ---------- renderers ---------- */
+function ring(v,color,label,sub,size){
+ const r=52,C=2*Math.PI*r,o=C*(1-clamp(v,0,100)/100);
+ return '<svg viewBox="0 0 130 130" class="ring" style="width:'+size+'px;height:'+size+'px" role="img" aria-label="'+esc(sub)+' '+esc(label)+'"><circle cx="65" cy="65" r="'+r+'" class="rbg"/><circle cx="65" cy="65" r="'+r+'" class="rfg" style="stroke:'+color+';stroke-dasharray:'+C+';stroke-dashoffset:'+o+'" transform="rotate(-90 65 65)"/><text x="65" y="68" text-anchor="middle" class="rv" style="fill:'+(color==='#e6c65a'?'#e6c65a':'')+'">'+label+'</text><text x="65" y="86" text-anchor="middle" class="rs" style="fill:'+(color==='#e6c65a'?'#cfe3d8':'')+'">'+sub+'</text></svg>';
+}
+function renderCreed(M){
+ const t=$('teaser');
+ if(!M.init&&!M.c){t.innerHTML='<div class="empty" style="grid-column:1/-1">Enter the investor’s idle funds and monthly amount in Clarity, or load sample data, to see what waiting costs and what working can earn.</div>';$('inflText').textContent='Enter the investor’s funds in Clarity to see what idle cash loses in buying power.'}
+ else{
+  t.innerHTML=
+  '<div class="stat"><span>Saving only, after '+M.H+' years</span><b>'+fm(M.end.save)+'</b><small>at '+M.sr+'% a year, before inflation</small></div>'+
+  '<div class="stat bad"><span>What that savings will buy</span><b>'+fm(M.end.saveReal)+'</b><small>in today’s money at '+M.inf+'% inflation</small></div>'+
+  '<div class="stat good"><span>Investing, expected outcome</span><b>'+fm(M.end.exp)+'</b><small>'+(M.inc.length?M.rates.mid.toFixed(1)+'% blended, indicative':'select pathways in Capital')+'</small></div>';
+  $('inflText').textContent=M.init?'At '+M.inf+'% inflation and a '+M.sr+'% savings profit rate, '+fm(M.init)+' left idle for '+M.H+' years buys only about '+fm(M.idleReal)+' of today’s goods.':'Add idle funds in Clarity to see the effect on buying power.';
+ }
+ $('creedPct').textContent=Math.round(M.m.creed*100)+'%';
+ $('creedBar').style.width=Math.round(M.m.creed*100)+'%';
+}
+function renderClarity(M){
+ const m=M.m,box=$('statusCard');
+ if(!m.hasData){box.innerHTML='<h3>Business status</h3><div class="empty">Enter the client’s figures, or load sample data, to see the Business Health Score and what it means for investing.</div>';return}
+ const T=TIERS[m.tier],next=m.tier<3?TIER_MIN[m.tier+1]:null;
+ box.innerHTML='<h3>Business status</h3>'+
+ '<div class="status">'+ring(m.score,T.c,m.score,'of 100',150)+
+ '<div style="flex:1;min-width:200px"><span class="tier" style="background:'+T.c+'">'+T.n+'</span><p style="margin-top:8px">'+T.t+'</p>'+(next?'<p class="note">'+(next-m.score)+' more points reach the next tier.</p>':'<p class="note">Top tier reached. Focus on holding these strengths.</p>')+'</div></div>'+
+ m.comp.map(c=>'<div class="comp"><div class="row"><b>'+c.k+'</b><span>'+Math.round(c.v)+'/100</span></div><div class="bar"><i style="width:'+Math.round(c.v)+'%;background:'+(c.v>=70?'var(--ok)':c.v>=40?'var(--warn)':'var(--bad)')+'"></i></div><div class="why">'+esc(c.note)+'</div></div>').join('')+
+ '<div class="chips"><span class="chip">Monthly profit after debt: '+fm(m.rev-m.exp-m.debt)+'</span><span class="chip">Data completeness: '+m.completeness+'%</span></div>';
+}
+function strategyCard(r,on,M){
+ const cc=r.conf>=80?'#2f7d4f':r.conf>=65?'#b7791f':'#a8432f',cl=r.conf>=80?'High':r.conf>=65?'Solid':'Developing';
+ return '<article class="scard'+(on?'':' off')+'" style="--c:'+r.c+'">'+
+ '<div class="shead"><div><h4>'+r.name+'<span class="ar" lang="ar">'+r.ar+'</span></h4><span class="kind">'+r.kind+'</span></div>'+
+ '<label class="tog noprint"><input type="checkbox" data-inc="'+r.id+'"'+(on?' checked':'')+'> Include</label></div>'+
+ '<div class="meters"><div><div class="lab"><span>Fit with this investor</span><b>'+r.fit+'</b></div><div class="bar"><i style="width:'+r.fit+'%;background:'+r.c+'"></i></div></div>'+
+ '<div><div class="lab"><span>Confidence</span></div><span class="conf" style="background:'+cc+'">'+cl+' '+r.conf+'</span></div>'+
+ '<div><div class="lab"><span>Risk</span></div><span class="dots" aria-label="Risk '+r.risk+' of 5">'+dots(r.risk)+'</span></div>'+
+ '<div><div class="lab"><span>Access to cash</span></div><span class="dots" aria-label="Liquidity '+r.liq+' of 5">'+dots(r.liq)+'</span></div></div>'+
+ '<div class="retline">Indicative yearly return <input type="number" step="0.5" aria-label="Low return percent for '+r.name+'" data-lo="'+r.id+'" value="'+r.lo+'">to<input type="number" step="0.5" aria-label="High return percent for '+r.name+'" data-hi="'+r.id+'" value="'+r.hi+'">%</div>'+
+ '<p><b>How it works.</b> '+r.what+'</p><p><b>Desired outcome.</b> '+r.outcome+'</p><p><b>Safeguards.</b> '+r.safe+'</p>'+
+ (on?'<div class="al">Suggested allocation: '+r.alloc+'%'+(M.init?' ('+fm(M.init*r.alloc/100)+')':'')+'</div>':'')+
+ '</article>';
+}
+function renderCapital(M){
+ $('allocTotal').textContent=M.init?fm(M.init):'the investor’s funds';
+ $('allocBar').innerHTML=M.inc.map(r=>'<i style="width:'+r.alloc+'%;background:'+r.c+'" title="'+r.name+' '+r.alloc+'%"></i>').join('');
+ $('allocLegend').innerHTML=M.inc.length?M.inc.map(r=>'<span style="--c:'+r.c+'">'+r.name+' '+r.alloc+'%</span>').join(''):'<span style="--c:#ccc">Select at least one pathway below.</span>';
+ const ids=M.inc.map(r=>r.id);
+ $('stratGrid').innerHTML=M.ranked.map(r=>{const on=ids.indexOf(r.id)>=0;if(on)r.alloc=M.inc.find(x=>x.id===r.id).alloc;return strategyCard(r,on,M)}).join('');
+}
+function chartSVG(M){
+ const S=M.series,H=M.H,W=720,Ht=340,l=64,r=22,t=16,b=44;
+ const mx=Math.max.apply(null,[].concat(S.contrib,S.save,S.cons,S.exp,S.opt,[1]))*1.06;
+ const X=i=>l+(W-l-r)*i/H,Y=v=>Ht-b-(Ht-t-b)*v/mx;
+ let g='';
+ for(let k=0;k<=4;k++){const v=mx*k/4,yy=Y(v);g+='<line class="gl" x1="'+l+'" x2="'+(W-r)+'" y1="'+yy+'" y2="'+yy+'"/><text x="'+(l-8)+'" y="'+(yy+4)+'" text-anchor="end">'+compact(v)+'</text>'}
+ const step=Math.max(1,Math.ceil(H/10));
+ for(let i=0;i<=H;i+=step)g+='<text x="'+X(i)+'" y="'+(Ht-b+18)+'" text-anchor="middle">'+i+'</text>';
+ g+='<text x="'+(l+(W-l-r)/2)+'" y="'+(Ht-6)+'" text-anchor="middle">Years</text>';
+ const path=a=>a.map((v,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(v).toFixed(1)).join(' ');
+ const band=path(S.opt)+' '+S.cons.map((v,i)=>'L'+X(H-i).toFixed(1)+' '+Y(S.cons[H-i]).toFixed(1)).join(' ')+' Z';
+ g+='<path d="'+band+'" fill="#2f7d4f" opacity=".14"/>';
+ g+='<path d="'+path(S.contrib)+'" fill="none" stroke="#8d958f" stroke-width="2" stroke-dasharray="6 5"/>';
+ g+='<path d="'+path(S.save)+'" fill="none" stroke="#a8432f" stroke-width="3"/>';
+ g+='<path d="'+path(S.cons)+'" fill="none" stroke="#7fb069" stroke-width="2"/>';
+ g+='<path d="'+path(S.opt)+'" fill="none" stroke="#c9a227" stroke-width="2.5"/>';
+ g+='<path d="'+path(S.exp)+'" fill="none" stroke="#0f4d3a" stroke-width="4" stroke-linecap="round"/>';
+ g+='<circle cx="'+X(H)+'" cy="'+Y(S.exp[H])+'" r="5.5" fill="#0f4d3a"/><circle cx="'+X(H)+'" cy="'+Y(S.save[H])+'" r="5" fill="#a8432f"/>';
+ return '<svg viewBox="0 0 '+W+' '+Ht+'" role="img" aria-label="Projection of savings versus investing over '+H+' years">'+g+'</svg>';
+}
+function renderCompound(M){
+ const E=M.end;
+ $('compStats').innerHTML=
+ '<div class="stat"><span>You put in</span><b>'+fm(E.contrib)+'</b><small>over '+M.H+' years</small></div>'+
+ '<div class="stat bad"><span>Saving only</span><b>'+fm(E.save)+'</b><small>worth '+fm(E.saveReal)+' in today’s money</small></div>'+
+ '<div class="stat good"><span>Investing, expected</span><b>'+fm(E.exp)+'</b><small>range '+fm(E.cons)+' to '+fm(E.opt)+'</small></div>'+
+ '<div class="stat gold"><span>Expected advantage</span><b>'+fm(E.exp-E.save)+'</b><small>more than saving</small></div>';
+ $('chartBox').innerHTML=(M.init||M.c)?chartSVG(M):'<div class="empty">Enter investable funds or a monthly amount in Clarity to draw the projection.</div>';
+ $('chartLegend').innerHTML='<span style="--c:#0f4d3a">Investing, expected</span><span style="--c:#c9a227">Optimistic</span><span style="--c:#7fb069">Conservative</span><span style="--c:#a8432f">Saving only</span><span class="dash" style="--c:#8d958f">Capital contributed</span>';
+ const yrs=[...new Set([1,3,5,M.H].filter(y=>y<=M.H))].sort((a,b)=>a-b);
+ const S=M.series,inf=M.inf;
+ $('compTable').innerHTML='<table class="t"><thead><tr><th>Year</th><th>Contributed</th><th>Saving only</th><th>Saving, today’s money</th><th>Conservative</th><th>Expected</th><th>Optimistic</th></tr></thead><tbody>'+
+ yrs.map(y=>'<tr><td>'+y+'</td><td>'+fm(S.contrib[y])+'</td><td>'+fm(S.save[y])+'</td><td>'+fm(S.save[y]/Math.pow(1+inf/100,y))+'</td><td>'+fm(S.cons[y])+'</td><td><b>'+fm(S.exp[y])+'</b></td><td>'+fm(S.opt[y])+'</td></tr>').join('')+'</tbody></table>';
+}
+function cagr(end,M){return M.end.contrib>0&&end>0?(Math.round((end/M.end.contrib-1)*100)):0}
+function milestones(M){
+ const m=M.m,next=m.tier<3?TIER_MIN[m.tier+1]:Math.min(100,m.score+5);
+ return [
+  ['Business Health Score',m.score+' ('+TIERS[m.tier].n+')',next+(m.tier<3?' (next tier)':''),'Moves the business into a stronger tier for deploying capital'],
+  ['Cash runway',m.runway.toFixed(1)+' months',Math.max(m.runway,6).toFixed(1)+' months','A six-month cushion keeps investments from being sold in a squeeze'],
+  ['Debt service share of revenue',pct(m.debtLoad),pct(Math.min(m.debtLoad,0.10)),'Frees cash flow and reduces dependence on interest-based borrowing'],
+  ['Net margin after debt',pct(m.netMargin),pct(Math.max(m.netMargin,0.20)),'Healthy margins fund reinvestment and absorb surprises'],
+  ['Creed alignment',Math.round(m.creed*100)+'%','100%','Every principle confirmed before capital is committed'],
+  ['Capital working in halal pathways','0%',M.init?fm(M.init/3)+' in the first tranche':'First tranche of one-third','Staged entry spreads timing risk across the first year']
+ ];
+}
+function renderCommerce(M){
+ const m=M.m,E=M.end;
+ const cc=M.conf>=80?'#e6c65a':M.conf>=65?'#f0d98b':'#f4b4a4';
+ $('confRing').innerHTML=ring(M.conf,'#e6c65a',M.conf,'out of 100',150);
+ $('confText').innerHTML=!m.hasData||!M.inc.length?'<p>Enter client data and select at least one pathway to see how confident the plan is.</p>':
+  '<p>'+(M.conf>=80?'This plan is well matched to the investor, well documented, and diversified.':M.conf>=65?'This plan is solid. Completing the data and the creed checklist will raise confidence further.':'This plan is still developing. Complete the client data and close creed gaps before committing capital.')+'</p><p style="font-size:.88rem;color:#cfe3d8">Built from pathway fit ('+M.inc.length+' selected), data completeness ('+m.completeness+'%), and creed alignment ('+Math.round(m.creed*100)+'%).</p>';
+ const lines=[];
+ if(!M.init&&!M.c)lines.push('<p>Enter investable funds and a monthly amount to see the headline outcome.</p>');
+ else{
+  lines.push('<p><b>Expected outcome:</b> '+fm(E.exp)+' after '+M.H+' years, about <b>'+fm(E.exp-E.save)+'</b> more than saving the same money.</p>');
+  lines.push(E.cons>E.save?'<p>Even the conservative case, '+fm(E.cons)+', finishes ahead of saving only.</p>':'<p>The conservative case, '+fm(E.cons)+', does not clearly beat saving. Revisit the pathway mix or the return assumptions.</p>');
+  lines.push('<p>Saving alone leaves buying power at about '+fm(E.saveReal)+' in today’s money.</p>');
+ }
+ $('headlines').innerHTML=lines.join('');
+ const sc=[['Conservative',E.cons,M.rates.lo,'#7fb069','Pathways return the low end of their ranges.'],['Expected',E.exp,M.rates.mid,'#0f4d3a','Pathways return the midpoint of their ranges.'],['Optimistic',E.opt,M.rates.hi,'#c9a227','Pathways return the high end of their ranges.']];
+ $('scenCards').innerHTML=sc.map(s=>'<div class="stat" style="border-top:6px solid '+s[3]+'"><span>'+s[0]+' case</span><b>'+fm(s[1])+'</b><small>'+s[2].toFixed(1)+'% blended a year. '+s[4]+'</small></div>').join('');
+ $('outTable').innerHTML='<table class="t"><thead><tr><th>Measure</th><th>Today</th><th>12-month target</th><th>Why it matters</th></tr></thead><tbody>'+milestones(M).map(r=>'<tr><td><b>'+r[0]+'</b></td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td></tr>').join('')+'</tbody></table>';
+}
+function plan(M){
+ const m=M.m,s=state,top=M.inc.slice(0,2).map(r=>r.name);
+ const p1=[],p2=[],p3=[],p4=[];
+ if(m.hasData&&m.runway<3)p1.push('Build the cash reserve from '+m.runway.toFixed(1)+' to at least 3 months of costs ('+fm(m.burn*3)+') before releasing growth capital.');
+ if(m.debtLoad>0.1)p1.push('Debt service is '+pct(m.debtLoad)+' of revenue. Create a dated plan to replace interest-based borrowing with halal financing and bring it under 10%.');
+ if(m.hasData&&m.netMargin<0.12)p1.push('Net margin is '+pct(m.netMargin)+'. Review pricing and the three largest costs to lift it toward 20%.');
+ const gaps=CHECKS.map((c,i)=>s.checks[i]?null:i).filter(i=>i!==null);
+ if(gaps.length)p1.push('Close the open creed items ('+gaps.map(i=>i+1).join(', ')+' on the checklist) and record the actions taken.');
+ p1.push('Put financial records on a monthly rhythm and place every partnership or financing agreement in writing with a Shariah advisor’s review.');
+ p2.push(top.length?'Deploy the first tranche, about one-third of the funds'+(M.init?' ('+fm(M.init/3)+')':'')+', into '+top.join(' and ')+'.':'Select pathways in Capital, then deploy the first tranche of one-third.');
+ p2.push('Hold the second and third tranches until the 90-day review confirms reserves, reporting, and performance.');
+ if(M.c)p2.push('Automate the monthly contribution of '+fm(M.c)+' so growth does not depend on motivation.');
+ p3.push('Reinvest profits and distributions while the portfolio is below target size.');
+ p3.push('Rebalance once a year and review each partner’s results against what was promised.');
+ p3.push('Re-score the business every six months and aim for '+(m.tier<3?TIERS[m.tier+1].n:'a sustained Expansion-Ready')+' status.');
+ p4.push('Hold a yearly muhasabah review: zakat, creed checklist, results against the projection, and the next year’s intention.');
+ p4.push('Plan succession and, where suitable, direct part of the growth into waqf or sadaqah jariyah so the benefit outlasts the portfolio.');
+ p4.push('Keep a diversified base across income, growth, and protection pathways as the capital grows.');
+ return [{t:'Secure',w:'Days 0 to 90',i:p1,d:'Strengthen the base so investments are never forced to be sold.'},{t:'Deploy',w:'Months 3 to 12',i:p2,d:'Put capital to work in stages across the matched pathways.'},{t:'Compound',w:'Years 1 to 3',i:p3,d:'Let reinvested returns do the heavy lifting.'},{t:'Sustain',w:'Year 3 and beyond',i:p4,d:'Protect the results and pass on the benefit.'}];
+}
+function renderPlan(M){
+ $('planBox').innerHTML=plan(M).map(p=>'<div class="phase"><div><div class="when">'+p.w+'</div><h4>'+p.t+'</h4><p class="note">'+p.d+'</p></div><ul>'+p.i.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>').join('');
+}
+function render(){
+ const M=model();LAST=M;
+ $('sampleBadge').hidden=!state.isSample;
+ renderCreed(M);renderClarity(M);renderCapital(M);renderCompound(M);renderCommerce(M);renderPlan(M);
+}
+
+/* ---------- inputs ---------- */
+function syncInputs(){
+ document.querySelectorAll('[data-k]').forEach(el=>{const v=state[el.dataset.k];el.value=v==null?'':v});
+ document.querySelectorAll('#checks input').forEach((el,i)=>{el.checked=!!state.checks[i]});
+}
+function buildChecks(){
+ $('checks').innerHTML=CHECKS.map((c,i)=>'<label><input type="checkbox" data-ck="'+i+'"><span>'+c+'</span></label>').join('');
+ $('checks').addEventListener('change',e=>{const i=e.target.dataset.ck;if(i==null)return;state.checks[+i]=e.target.checked;state.isSample=false;saveState();render()});
+}
+document.addEventListener('input',e=>{
+ const k=e.target.dataset&&e.target.dataset.k;if(!k)return;
+ state[k]=e.target.value;state.isSample=false;saveState();render();
+});
+$('stratGrid').addEventListener('change',e=>{
+ const t=e.target;
+ if(t.dataset.inc){
+  let cur=state.chosen?state.chosen.slice():LAST.inc.map(r=>r.id);
+  if(t.checked){if(cur.indexOf(t.dataset.inc)<0)cur.push(t.dataset.inc)}else cur=cur.filter(x=>x!==t.dataset.inc);
+  state.chosen=cur;saveState();render();
+ }else if(t.dataset.lo||t.dataset.hi){
+  const id=t.dataset.lo||t.dataset.hi,st=STRATS.find(s=>s.id===id);
+  const o=(state.over[id]||[st.lo,st.hi]).slice();
+  if(t.dataset.lo)o[0]=num(t.value);else o[1]=num(t.value);
+  if(o[0]>o[1])o.reverse();
+  state.over[id]=o;saveState();render();
+ }
+});
+$('btnAuto').onclick=()=>{state.chosen=null;saveState();render();toast('Pathways reset to the recommended four.')};
+
+/* ---------- tabs ---------- */
+let cur=1;
+function show(i){
+ cur=i;
+ document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id==='p'+i));
+ document.querySelectorAll('#steps li').forEach(li=>{const n=+li.dataset.i;li.classList.toggle('on',n===i);li.classList.toggle('done',n<i)});
+ window.scrollTo({top:document.querySelector('.path').offsetTop-4});
+}
+document.querySelectorAll('#steps li').forEach(li=>li.querySelector('button').addEventListener('click',()=>show(+li.dataset.i)));
+document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g)show(+g.dataset.go)});
+
+/* ---------- toolbar actions ---------- */
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),3400)}
+$('btnSample').onclick=()=>{const keep={consultant:state.consultant,firm:state.firm,over:state.over};state=Object.assign(clone(SAMPLE),{consultant:keep.consultant||'',firm:keep.firm||'',over:keep.over||{}});saveState();syncInputs();render();toast('Sample data loaded.')};
+let armed=false;
+$('btnClear').onclick=function(){
+ const b=this;
+ if(!armed){armed=true;b.textContent='Click again to confirm';b.classList.add('armed');setTimeout(()=>{armed=false;b.textContent='Clear Sample Data';b.classList.remove('armed')},4000);return}
+ armed=false;b.textContent='Clear Sample Data';b.classList.remove('armed');
+ state=blankState();saveState();syncInputs();render();toast('All client data cleared. Save a client first next time if you want to keep it.');
+};
+$('btnPrint').onclick=()=>window.print();
+$('btnPDF').onclick=()=>buildPDF('full');
+$('btnPDF2').onclick=()=>buildPDF('full');
+$('btnSummary').onclick=()=>buildPDF('summary');
+
+/* ---------- client roster ---------- */
+function roster(){try{return JSON.parse(localStorage.getItem(RKEY))||[]}catch(e){return[]}}
+function saveRoster(r){try{localStorage.setItem(RKEY,JSON.stringify(r));return true}catch(e){return false}}
+function renderRoster(){
+ const r=roster();
+ $('clList').innerHTML=r.length?r.map((c,i)=>'<div class="cl"><div><b>'+esc(c.state.client||'Unnamed client')+'</b><small>'+esc(c.state.business||'No business name')+', saved '+esc(c.date)+'</small></div><div><button class="btn small" data-load="'+i+'" type="button">Load</button> <button class="btn small danger" data-del="'+i+'" type="button">Delete</button></div></div>').join(''):'<p class="note">No saved clients yet.</p>';
+}
+$('btnClients').onclick=()=>{renderRoster();$('ov').classList.add('on')};
+$('ovClose').onclick=()=>$('ov').classList.remove('on');
+$('ov').addEventListener('click',e=>{if(e.target===$('ov'))$('ov').classList.remove('on')});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('ov').classList.remove('on')});
+$('ovSave').onclick=()=>{
+ if(!(state.client||state.business)){toast('Enter a client or business name first.');return}
+ const r=roster(),snap=clone(state);snap.isSample=false;
+ const entry={state:snap,date:new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})};
+ const ix=r.findIndex(c=>c.state.client===snap.client&&c.state.business===snap.business);
+ if(ix>=0)r[ix]=entry;else r.push(entry);
+ toast(saveRoster(r)?'Client saved to this browser.':'Could not save in this browser.');renderRoster();
+};
+$('clList').addEventListener('click',e=>{
+ const r=roster();
+ if(e.target.dataset.load!=null){state=clone(r[+e.target.dataset.load].state);state.over=state.over||{};saveState();syncInputs();render();$('ov').classList.remove('on');toast('Client loaded.')}
+ if(e.target.dataset.del!=null){r.splice(+e.target.dataset.del,1);saveRoster(r);renderRoster()}
+});
+
+/* ---------- PDF ---------- */
+function buildPDF(kind){
+ const M=model(),m=M.m;
+ if(!m.hasData){toast('Add client data or load sample data first.');return}
+ if(!window.jspdf){toast('The PDF engine did not load. Use Print and choose Save as PDF instead.');return}
+ const doc=new window.jspdf.jsPDF({unit:'mm',format:'a4'});
+ const L=16,CW=178,PH=297;let y=0;
+ const G=[15,77,58],GD=[201,162,39],INK=[29,42,36],MU=[95,108,101];
+ const sum=kind==='summary';
+ const firstBand=()=>{doc.setFillColor(...G);doc.rect(0,0,210,30,'F');doc.setFillColor(...GD);doc.rect(0,30,210,1.2,'F');
+  doc.setTextColor(230,198,90);doc.setFont('helvetica','italic');doc.setFontSize(8.5);doc.text('In the name of Allah, the Most Gracious, the Most Merciful',L,9);
+  doc.setTextColor(255,255,255);doc.setFont('times','bold');doc.setFontSize(18);doc.text(sum?'Executive Summary':'Investment Readiness Report',L,19);
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text('Islamic Investment Pathways Navigator  |  Creed-to-Commerce\u2122',L,26);y=39};
+ const nextBand=()=>{doc.setFillColor(...G);doc.rect(0,0,210,10,'F');doc.setFillColor(...GD);doc.rect(0,10,210,.8,'F');y=19};
+ const ensure=h=>{if(y+h>PH-18){doc.addPage();nextBand()}};
+ const h2=t=>{ensure(18);doc.setFillColor(...GD);doc.rect(L,y+1,2.2,6,'F');doc.setFont('times','bold');doc.setFontSize(13);doc.setTextColor(...G);doc.text(t,L+5,y+6);y+=11};
+ const txt=(s,o)=>{o=o||{};const size=o.size||9.5,lh=size*0.3528*1.4;doc.setFont('helvetica',o.bold?'bold':'normal');doc.setFontSize(size);doc.setTextColor(...(o.color||INK));
+  doc.splitTextToSize(String(s),o.w||CW).forEach(ln=>{ensure(lh);doc.text(ln,o.x||L,y+lh*.8);y+=lh});y+=o.gap==null?1.5:o.gap};
+ const bl=s=>{doc.setFont('helvetica','normal');doc.setFontSize(9.5);const lh=4.6;
+  doc.splitTextToSize(String(s),CW-6).forEach((ln,i)=>{ensure(lh);if(i===0){doc.setTextColor(...GD);doc.text('\u2022',L+1,y+lh*.8)}doc.setTextColor(...INK);doc.text(ln,L+6,y+lh*.8);y+=lh});y+=1.2};
+ const kv=(pairs,cols)=>{const cw=CW/cols,rows=Math.ceil(pairs.length/cols);ensure(rows*12);
+  pairs.forEach((p,i)=>{const cx=L+(i%cols)*cw,cy=y+Math.floor(i/cols)*12;doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(...MU);doc.text(p[0],cx,cy+3);
+   doc.setFont('helvetica','bold');doc.setFontSize(10.5);doc.setTextColor(...INK);doc.text(doc.splitTextToSize(String(p[1]),cw-3)[0],cx,cy+8.5)});y+=rows*12+2};
+ const table=(hd,rows,ws)=>{const fs=8.5,pad=1.8;doc.setFont('helvetica','normal');doc.setFontSize(fs);
+  const hs=rows.map(r=>Math.max.apply(null,r.map((c,i)=>doc.splitTextToSize(String(c),ws[i]-2*pad).length))*3.8+2*pad);
+  ensure(7+(hs[0]||0));let x=L;doc.setFillColor(...G);doc.rect(L,y,CW,7,'F');doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(fs);
+  hd.forEach((h,i)=>{doc.text(h,x+pad,y+4.8);x+=ws[i]});y+=7;
+  rows.forEach((r,ri)=>{const h=hs[ri];ensure(h);if(ri%2===0){doc.setFillColor(247,242,225);doc.rect(L,y,CW,h,'F')}
+   x=L;doc.setFont('helvetica','normal');doc.setFontSize(fs);doc.setTextColor(...INK);
+   r.forEach((c,i)=>{doc.splitTextToSize(String(c),ws[i]-2*pad).forEach((ln,k)=>doc.text(ln,x+pad,y+pad+2.8+k*3.8));x+=ws[i]});y+=h});y+=3};
+ const scoreBar=()=>{const T=TIERS[m.tier];ensure(22);doc.setFont('times','bold');doc.setFontSize(30);doc.setTextColor(...G);doc.text(String(m.score),L,y+10);
+  doc.setFontSize(10);doc.setFont('helvetica','normal');doc.setTextColor(...MU);doc.text('of 100',L+(m.score>=100?19:13),y+10);
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(...G);doc.text(T.n,L+40,y+5);
+  doc.setFillColor(235,230,208);doc.roundedRect(L+40,y+8,CW-40,3,1.5,1.5,'F');doc.setFillColor(...G);doc.roundedRect(L+40,y+8,Math.max(2,(CW-40)*m.score/100),3,1.5,1.5,'F');
+  y+=15;if(!sum)txt(T.t,{size:9.5})};
+ const pdfChart=h=>{ensure(h+16);const x0=L+14,w=CW-16,y0=y+2,hh=h-12,S=M.series,HZ=M.H;
+  const mx=Math.max.apply(null,[].concat(S.contrib,S.save,S.cons,S.exp,S.opt,[1]))*1.06;
+  const X=i=>x0+w*i/HZ,Y=v=>y0+hh-hh*v/mx;
+  doc.setDrawColor(222,215,185);doc.setLineWidth(.15);doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(...MU);
+  for(let k=0;k<=4;k++){const yy=Y(mx*k/4);doc.line(x0,yy,x0+w,yy);doc.text(compact(mx*k/4),x0-2,yy+1,{align:'right'})}
+  const step=Math.max(1,Math.ceil(HZ/10));for(let i=0;i<=HZ;i+=step)doc.text(String(i),X(i),y0+hh+4,{align:'center'});
+  doc.text('Years',x0+w/2,y0+hh+8,{align:'center'});
+  const ser=[['contrib',[141,149,143],.3,'Capital contributed'],['save',[168,67,47],.6,'Saving only'],['cons',[127,176,105],.5,'Conservative'],['opt',[201,162,39],.5,'Optimistic'],['exp',G,1,'Investing, expected']];
+  ser.forEach(s=>{doc.setDrawColor(...s[1]);doc.setLineWidth(s[2]);for(let i=0;i<HZ;i++)doc.line(X(i),Y(S[s[0]][i]),X(i+1),Y(S[s[0]][i+1]))});
+  let lx=L;ser.slice().reverse().forEach(s=>{doc.setDrawColor(...s[1]);doc.setLineWidth(1);doc.line(lx,y0+hh+11.5,lx+6,y0+hh+11.5);doc.setTextColor(...INK);doc.text(s[3],lx+8,y0+hh+12.5);lx+=doc.getTextWidth(s[3])+14});
+  doc.setLineWidth(.2);y+=h+4};
+
+ firstBand();
+ const prepared=[state.consultant,state.firm].filter(Boolean).join(', ')||'Not stated';
+ kv([['Client',state.client||'Not stated'],['Business',state.business||'Not stated'],['Sector',state.sector],['Prepared by',prepared],['Date',new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})],['Horizon',M.H+' years']],3);
+
+ h2('Business status');scoreBar();
+ kv(sum?[['Net margin after debt',pct(m.netMargin)],['Cash runway',m.runway.toFixed(1)+' months'],['Plan confidence',M.conf+' / 100']]:[['Net margin after debt',pct(m.netMargin)],['Cash runway',m.runway.toFixed(1)+' months'],['Debt service / revenue',pct(m.debtLoad)],['Years operating',String(m.yrs)],['Creed alignment',Math.round(m.creed*100)+'%'],['Plan confidence',M.conf+' / 100']],3);
+
+ h2('Recommended pathways');
+ if(!M.inc.length)txt('No pathways selected.');
+ else table(['Pathway','Share','Indicative return','Risk','Confidence'],M.inc.map(r=>[sum?r.name:r.name+' ('+r.kind+')',r.alloc+'%'+(M.init?' ('+fmPDF(M.init*r.alloc/100)+')':''),r.lo+'% to '+r.hi+'%',r.risk+' / 5',r.conf+' / 100']),[70,36,30,16,26]);
+
+ h2('Saving versus investing');
+ const E=M.end;
+ bl('Expected outcome after '+M.H+' years: '+fmPDF(E.exp)+', about '+fmPDF(E.exp-E.save)+' more than saving the same money ('+fmPDF(E.save)+').');
+ bl('Range of outcomes: '+fmPDF(E.cons)+' (conservative) to '+fmPDF(E.opt)+' (optimistic). Capital contributed: '+fmPDF(E.contrib)+'.');
+ bl('Buying power of savings alone: about '+fmPDF(E.saveReal)+' in today\u2019s money at '+M.inf+'% inflation.');
+ pdfChart(sum?38:62);
+
+ if(sum){
+  txt('Open the full report for creed alignment, pathway safeguards, milestones, and the four-phase sustainability plan.',{size:9,color:MU});
+ }else{
+  const yrs=[...new Set([1,3,5,M.H].filter(v=>v<=M.H))].sort((a,b)=>a-b),S=M.series;
+  table(['Year','Contributed','Saving only','Conservative','Expected','Optimistic'],yrs.map(v=>[String(v),fmPDF(S.contrib[v]),fmPDF(S.save[v]),fmPDF(S.cons[v]),fmPDF(S.exp[v]),fmPDF(S.opt[v])]),[18,32,32,32,32,32]);
+
+  h2('Creed alignment');
+  CHECKS.forEach((c,i)=>bl((state.checks[i]?'[Confirmed] ':'[Open] ')+c));
+  if(state.niyyah){txt('Statement of intention (niyyah)',{bold:true,size:10,gap:.5});txt(state.niyyah,{size:9.5})}
+
+  h2('Pathway details');
+  M.inc.forEach(r=>{txt(r.name+'  |  '+r.kind,{bold:true,size:10,gap:.5});txt('How it works: '+r.what,{size:9,gap:.4});txt('Desired outcome: '+r.outcome,{size:9,gap:.4});txt('Safeguards: '+r.safe,{size:9,gap:2.5})});
+
+  h2('Milestones to reach');
+  table(['Measure','Today','12-month target'],milestones(M).map(r=>[r[0],r[1].replace(/\u2019/g,"'"),r[2]]),[70,54,54]);
+
+  h2('Sustainability plan');
+  plan(M).forEach(p=>{txt(p.t+'  ('+p.w+')',{bold:true,size:10.5,color:G,gap:.8});p.i.forEach(bl);y+=1.5});
+  if(state.notes){h2('Consultant notes');txt(state.notes)}
+ }
+ ensure(22);y+=2;
+ txt('This report is an educational planning document. It is not licensed investment, tax, or legal advice and does not issue Shariah rulings. Return ranges are indicative planning assumptions, not guarantees, and capital is at risk. Confirm every structure with a qualified Shariah scholar and a licensed adviser in the relevant jurisdiction.',{size:8,color:MU});
+
+ const n=doc.getNumberOfPages();
+ for(let i=1;i<=n;i++){doc.setPage(i);doc.setDrawColor(...GD);doc.setLineWidth(.4);doc.line(L,PH-13,L+CW,PH-13);doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(...MU);
+  doc.text('Creed-to-Commerce\u2122  |  The Balanced Middle Path Academy, LLC',L,PH-8.5);doc.text('Page '+i+' of '+n,L+CW,PH-8.5,{align:'right'})}
+ const slug=(state.client||state.business||'client').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+ doc.save('BMPA-Investment-'+(sum?'Summary-':'Report-')+slug+'.pdf');
+ toast(sum?'Executive summary PDF created.':'Full PDF report created.');
+}
+
+/* ---------- init ---------- */
+buildChecks();syncInputs();render();show(1);
+})();
+</script>
+</body>
+</html>
